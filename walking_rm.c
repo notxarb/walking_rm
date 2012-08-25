@@ -1,5 +1,5 @@
 /*************************************************************************\
-*                  Copyright (C) Michael Kerrisk, 2010.                   *
+*                  Copyright (C) Braxton Huggins, 2012.                   *
 *                                                                         *
 * This program is free software. You may use, modify, and redistribute it *
 * under the terms of the GNU Affero General Public License as published   *
@@ -9,17 +9,14 @@
 \*************************************************************************/
 
 
-/* nftw_dir_tree.c
-
-   Demonstrate the use of nftw(3). Walk though the directory tree specified
-   on the command line (or the current working directory if no directory
-   is specified on the command line), displaying an indented hierarchy
-   of files in the tree. For each file, display:
-
-      * a letter indicating the file type type (using the same letters
-        as "ls -l"), as obtained using stat(2);
-      * a string indicating the file type, as supplied by nftw(); and
-      * the file's i-node number.
+/* walking_rm.c
+  History: I ran into an instance where a client made a directory with many
+  files in it. The folder no longer used the standard 4 kilobytes, but was
+  using almost 1 gigabyte. Standard rm, ls, find and other utilities were
+  using lots of ram on the server while trying to get the list of files in
+  the directory. The design of this program is to walk through the directory
+  and remove the files rather than get the list and remove them. This
+  approach will take more time, but should not make memory usage explode.
 */
 #if defined(__sun)
 #define _XOPEN_SOURCE 500       /* Solaris 8 needs it this way */
@@ -29,12 +26,19 @@
 #endif
 #endif
 #include <ftw.h>
-#include "tlpi_hdr.h"
+#include <sys/types.h>  /* Type definitions used by many programs */
+#include <stdio.h>      /* Standard I/O functions */
+#include <stdlib.h>     /* Prototypes of commonly used library functions,
+                           plus EXIT_SUCCESS and EXIT_FAILURE constants */
+#include <unistd.h>     /* Prototypes for many system calls */
+#include <errno.h>      /* Declares errno and defines error constants */
+#include <string.h>     /* Commonly used string-handling functions */
 
-      int count = 0;
 
-static void
-usageError(const char *progName, const char *msg)
+// I know globals are bad
+int count = 0;
+
+static void usageError(const char *progName, const char *msg)
 {
     if (msg != NULL)
         fprintf(stderr, "%s\n", msg);
@@ -45,8 +49,8 @@ usageError(const char *progName, const char *msg)
     exit(EXIT_FAILURE);
 }
 
-static int                      /* Function called by nftw() */
-dirTree(const char *pathname, const struct stat *sbuf, int type,
+/* Function called by nftw() */
+static int dirTree(const char *pathname, const struct stat *sbuf, int type,
         struct FTW *ftwb)
 {
     // switch (sbuf->st_mode & S_IFMT) {       /* Print file type */
@@ -81,11 +85,10 @@ dirTree(const char *pathname, const struct stat *sbuf, int type,
       unlink(&pathname[0]);
     }
     
-    return 0;                                   /* Tell nftw() to continue */
+    return 0; /* Tell nftw() to continue */
 }
 
-int
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
     int flags, opt;
     char *path;
@@ -103,7 +106,7 @@ main(int argc, char *argv[])
     if (argc > optind + 1)
         usageError(argv[0], NULL);
     
-    
+    // get the real path for the unlink
     path = realpath((argc > optind) ? argv[optind] : ".", NULL);
     
     if (nftw(path, dirTree, 10, flags) == -1) {
@@ -113,6 +116,7 @@ main(int argc, char *argv[])
     
     printf("%i\n", count);
     
+    // Free the malloc's
     free(path);
     
     exit(EXIT_SUCCESS);
