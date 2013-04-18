@@ -12,4 +12,4 @@ Things to do:
 6. Make this my own, Michael Kerrisk might have taught me how to do this, but it has strayed a long ways from his example.
 7. Have it log somewhere - verbose or just total files deleted.
 8. Remove directories as well as files.
-9. Maybe this will save me some time so I can go on a date...
+9. Maybe this will save me some time so I can go on a date... (maybe)
