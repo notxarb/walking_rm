@@ -1,8 +1,8 @@
 
 all: walking_rm
 
-walking_rm: walking_rm.c
-	gcc -o bin/walking_rm walking_rm.c
+walking_rm:
+	gcc -o bin/walking_rm src/walking_rm.c
 
 .PHONY: clean
 
