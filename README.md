@@ -4,7 +4,7 @@ Other utilities that I tried (rm -rf, find ...) were using several gigabytes of 
 
 Things to do:
 
-1. Clean it up (remove commented out stuff, add Makefile).
+1. ~~Clean it up (remove commented out stuff, add Makefile).~~
 2. Add options for verbosity.
 3. Add option for quiet mode.
 4. Integrate some ionice functionality to make it run with idle priority.
