@@ -1,7 +1,7 @@
-
 all: walking_rm
 
 walking_rm:
+	mkdir -p bin
 	gcc -o bin/walking_rm src/walking_rm.c
 
 .PHONY: clean
